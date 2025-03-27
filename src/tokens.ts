@@ -13,6 +13,7 @@ export function generateToken(roomName: string, participantName: string) {
     identity: participantName,
   });
   at.addGrant({ 
+    roomCreate: true,
     roomJoin: true, 
     room: roomName,
     roomRecord: true,
