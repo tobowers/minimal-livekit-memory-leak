@@ -1,0 +1,17 @@
+{
+  "name": "minimal-memory-leak",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@livekit/rtc-node": "^0.13.8",
+    "dotenv": "^16.4.7",
+    "livekit-server-sdk": "^2.10.2"
+  }
+}
