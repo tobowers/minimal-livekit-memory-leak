@@ -13,6 +13,10 @@ const main = async () => {
   const participantToken = await generateToken("runawayMemoryLeak", "human");
 
   console.log("USE THESE TO JOIN: livekit url: ", process.env.NEXT_PUBLIC_LIVEKIT_URL, "\nparticipant token: ", participantToken);
+  console.log("\nVisit a 'video conference sandbox' and use the manual connect with the above info, hit enter when you're connected as 'human'");
+  await new Promise<void>((resolve) => {
+    process.stdin.once('data', () => resolve());
+  });
 
   const room = new Room()
   await room.connect(serverUrl, serverToken, { dynacast: true, autoSubscribe: false })
