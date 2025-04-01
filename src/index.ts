@@ -1,11 +1,30 @@
 import "dotenv/config"
-import { generateToken } from "./tokens";
-import { Participant, RemoteParticipant, Room, RoomEvent, TrackKind, TrackSource, TrackPublication, RemoteTrackPublication, Track, VideoStream } from "@livekit/rtc-node";
+import { generateToken, serverUrl, apiKey, apiSecret } from "./tokens";
+import { Participant, RemoteParticipant, Room, RoomEvent, TrackKind, TrackSource, TrackPublication, RemoteTrackPublication, Track, VideoStream, AudioStream } from "@livekit/rtc-node";
+import { RoomServiceClient } from "livekit-server-sdk";
+
+const ROOM_NAME="runawayMemoryLeak"
 
 const main = async () => {
-  const serverUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL
   if (!serverUrl) {
     throw new Error("NEXT_PUBLIC_LIVEKIT_URL is not set")
+  }
+
+  const roomService = new RoomServiceClient(
+    serverUrl,
+    apiKey,
+    apiSecret
+  );
+
+  const [listedRoom] = await roomService.listRooms([ROOM_NAME])
+
+  if (listedRoom == null) {
+    console.log('creating room', { room: ROOM_NAME, allowAutoEgress: false })
+    await roomService.createRoom({
+      name: ROOM_NAME,
+    })
+  } else {
+    console.log('room exists', { room: ROOM_NAME, allowAutoEgress: false })
   }
 
   const serverToken = await generateToken("runawayMemoryLeak", "server");
@@ -17,6 +36,8 @@ const main = async () => {
   await new Promise<void>((resolve) => {
     process.stdin.once('data', () => resolve());
   });
+
+  
 
   const room = new Room()
   await room.connect(serverUrl, serverToken, { dynacast: true, autoSubscribe: false })
@@ -101,13 +122,76 @@ const main = async () => {
     }
   }
 
-  const stream = await getVideoStream()
+  const getAudioStream = async (): Promise<AudioStream | null> => {
+    try {
+      const human = await getHuman()
+
+      let audioTrackPublication = Array.from(human.trackPublications.values()).find(publication => 
+        [TrackKind.KIND_AUDIO, "KIND_AUDIO"].includes(publication.kind || '') && 
+        publication.source === TrackSource.SOURCE_MICROPHONE
+      )
+      
+      if (!audioTrackPublication) {
+        console.warn(`No audio track found for participant ${human.identity}`)
+        audioTrackPublication = await new Promise((resolve) => {
+          const onPublication = async (publication: TrackPublication, participant: Participant) => {
+            if (publication.kind === TrackKind.KIND_AUDIO && publication.source === TrackSource.SOURCE_MICROPHONE) {
+              console.info("audio track published", { publication })
+              room.off(RoomEvent.TrackPublished, onPublication)
+              resolve(publication as RemoteTrackPublication)
+            }
+          }
+          room.on(RoomEvent.TrackPublished, onPublication)
+        })
+      }
+
+      if (!audioTrackPublication) {
+        console.warn(`No audio track found for participant ${human.identity}`)
+        return null
+      }
+
+      audioTrackPublication.setSubscribed(true)
+
+      let track: Track | undefined = audioTrackPublication.track
+
+      if (!track) {
+        track = await new Promise((resolve) => {
+          console.warn("no track found, waiting for track subscribed")
+          room.on(RoomEvent.TrackSubscribed, async (track, _publication, participant) => {
+            console.log('subscribed to track', track.sid, participant.identity, track.kind);
+            resolve(track)
+          });
+        })
+        if (!track) {
+          console.warn(`No track found for audio track publication ${audioTrackPublication.sid}`)
+          throw new Error('no track found')
+        }
+      }
+
+      const stream = new AudioStream(track)
+      return stream
+    } catch (error) {
+      console.error("error getting audio stream", { error, alert: true })
+      throw error
+    }
+  }
+
+  const stream = await getAudioStream()
   if (!stream) {
     console.error("no stream found")
     throw new Error("no stream found")
   }
+
+  setInterval(() => {
+    Bun.gc(true)
+  }, 1000)
+
+  let i = 0
   for await (const frame of stream) {
-    console.log(".")
+    i++;
+    if (i % 1000 === 0) {
+      console.log("frame", i, frame.data.length)
+    }
   }
 }
 

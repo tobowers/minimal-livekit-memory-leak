@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { AccessToken } from 'livekit-server-sdk';
 
-const apiKey = process.env.LIVEKIT_API_KEY
-const apiSecret = process.env.LIVEKIT_API_SECRET
+export const apiKey = process.env.LIVEKIT_API_KEY
+export const apiSecret = process.env.LIVEKIT_API_SECRET
 
 export const serverUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL
 

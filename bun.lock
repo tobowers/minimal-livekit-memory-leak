@@ -6,7 +6,7 @@
       "dependencies": {
         "@livekit/rtc-node": "^0.13.8",
         "dotenv": "^16.4.7",
-        "livekit-server-sdk": "^2.10.2",
+        "livekit-server-sdk": "^2.11.0",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -71,7 +71,7 @@
 
     "joycon": ["joycon@3.1.1", "", {}, "sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw=="],
 
-    "livekit-server-sdk": ["livekit-server-sdk@2.10.2", "", { "dependencies": { "@bufbuild/protobuf": "^1.7.2", "@livekit/protocol": "^1.32.1", "camelcase-keys": "^9.0.0", "jose": "^5.1.2" } }, "sha512-XDoHvLY9a6DXM7Iit7XdNp1M9OK/idWHuqZnKAoirBbPmaFmlAVKeQGQIZTG7UrktgoRAPvu3vv0UdC6Ds80Ng=="],
+    "livekit-server-sdk": ["livekit-server-sdk@2.11.0", "", { "dependencies": { "@bufbuild/protobuf": "^1.7.2", "@livekit/protocol": "^1.36.1", "camelcase-keys": "^9.0.0", "jose": "^5.1.2" } }, "sha512-SmUkVHwO9lYUstsJgt3rw9aC4E3dFBfreTLGXqxEWWegjaqcVDxropfYX57Tfs8eRiawd8ndk+AavF5QJGiWpg=="],
 
     "map-obj": ["map-obj@5.0.0", "", {}, "sha512-2L3MIgJynYrZ3TYMriLDLWocz15okFakV6J12HXvMXDHui2x/zgChzg1u9mFFGbbGWE+GsLpQByt4POb9Or+uA=="],
 
