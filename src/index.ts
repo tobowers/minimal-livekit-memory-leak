@@ -2,6 +2,7 @@ import "dotenv/config"
 import { generateToken, serverUrl, apiKey, apiSecret } from "./tokens";
 import { Participant, RemoteParticipant, Room, RoomEvent, TrackKind, TrackSource, TrackPublication, RemoteTrackPublication, Track, VideoStream, AudioStream } from "@livekit/rtc-node";
 import { RoomServiceClient } from "livekit-server-sdk";
+import { convertFrameToWebP } from "./convertToWebP";
 
 const ROOM_NAME="runawayMemoryLeak"
 
@@ -176,7 +177,7 @@ const main = async () => {
     }
   }
 
-  const stream = await getAudioStream()
+  const stream = await getVideoStream()
   if (!stream) {
     console.error("no stream found")
     throw new Error("no stream found")
@@ -189,8 +190,10 @@ const main = async () => {
   let i = 0
   for await (const frame of stream) {
     i++;
-    if (i % 1000 === 0) {
-      console.log("frame", i, frame.data.length)
+    if (i % 200 === 0) {
+      const webP = await convertFrameToWebP(frame.frame)
+      await Bun.write(`./frames/${i}.webp`, webP)
+      console.log("frame", i, frame.frame.data.length)
     }
   }
 }
