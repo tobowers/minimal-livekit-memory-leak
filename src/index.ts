@@ -191,8 +191,8 @@ const main = async () => {
   for await (const frame of stream) {
     i++;
     if (i % 200 === 0) {
-      const webP = await convertFrameToWebP(frame.frame)
-      await Bun.write(`./frames/${i}.webp`, webP)
+      // const webP = await convertFrameToWebP(frame.frame)
+      // await Bun.write(`./frames/${i}.webp`, webP)
       console.log("frame", i, frame.frame.data.length)
     }
   }
